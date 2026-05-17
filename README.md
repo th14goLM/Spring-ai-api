@@ -1,85 +1,112 @@
-# DIO Spring Boot - Final Project 05: Spring AI (budgeting)
+# 💰 Spring AI Budgeting API
 
-## Introduction
+> Projeto final do módulo Spring AI — DIO Spring Boot Track
+> Integração de inteligência artificial em uma API de controle financeiro, respeitando os limites arquiteturais de domínio e casos de uso.
 
-This final module applies Spring AI in a budgeting API while preserving the same layered architecture used across the track.
+---
 
-The goal is to integrate AI capabilities without bypassing domain and use case boundaries.
+## 📌 Visão Geral
 
-## Code Context
+Esta API processa **comandos de voz** para criação e consulta de transações financeiras.
+A IA atua como orquestradora do fluxo, sem violar as fronteiras entre camadas — domínio, aplicação e infraestrutura permanecem desacoplados.
 
-The project processes voice commands to create and query financial transactions.
+---
 
-Primary flow:
+## 🔄 Fluxo Principal
 
-1. Client uploads an audio file.
-2. Audio is transcribed into text.
-3. The model selects an application tool/use case.
-4. The use case persists or queries transaction data.
-5. The final response is converted to audio.
-
-## Project Structure
-
-- `src/main/java/dio/budgeting/domain`
-  - Domain model and repository contract.
-- `src/main/java/dio/budgeting/application`
-  - Use cases used by both REST and AI tool calling.
-- `src/main/java/dio/budgeting/infrastructure`
-  - HTTP adapters, JPA adapters, and integration glue.
-
-## Module-Specific Topics
-
-### Speech-to-text
-
-- Uses `TranscriptionModel` for audio transcription.
-- Model settings are configured in `application.properties`.
-
-### Tool calling
-
-- `ChatClient` registers use-case tools.
-- `@Tool` methods expose business capabilities to the model.
-
-### Text-to-speech
-
-- `TextToSpeechModel` produces MP3 output from final text.
-- AI endpoint returns generated audio.
-
-## Spring AI Documentation
-
-- Spring AI Reference: https://docs.spring.io/spring-ai/reference/index.html
-- ChatModel API: https://docs.spring.io/spring-ai/reference/api/chatmodel.html
-- ChatClient API: https://docs.spring.io/spring-ai/reference/api/chatclient.html
-- Tools API: https://docs.spring.io/spring-ai/reference/api/tools.html
-- Audio Transcriptions API: https://docs.spring.io/spring-ai/reference/api/audio/transcriptions.html
-- Audio Speech API: https://docs.spring.io/spring-ai/reference/api/audio/speech.html
-
-## Shared Architecture References
-
-Common architecture concepts are documented in the root README:
-
-- [DDD layers](../README.md#ddd-layered-architecture)
-- [Class vs record](../README.md#java-class-vs-java-record-in-domain-modeling)
-- [Strong typed identifiers](../README.md#strong-typed-identifiers)
-- [Repository pattern](../README.md#repository-pattern)
-- [Use cases and Clean Architecture](../README.md#use-cases-and-clean-architecture)
-- [Docker Compose support](../README.md#docker-compose-support-in-development)
-
-## How to Run
-
-Set your OpenAI API key:
-
-```bash
-export OPENAI_API_KEY="your_api_key_here"
+```
+Cliente → [Áudio] → Transcrição (STT) → Seleção de Tool → Caso de Uso → [Resposta em Áudio (TTS)]
 ```
 
-Run the application and tests:
+1. O cliente envia um arquivo de áudio
+2. O áudio é transcrito para texto via `TranscriptionModel`
+3. O modelo seleciona o tool/caso de uso adequado via function calling
+4. O caso de uso persiste ou consulta dados de transações
+5. A resposta textual é convertida para MP3 via `TextToSpeechModel`
+
+---
+
+## 🏗️ Arquitetura em Camadas
+
+```
+src/main/java/dio/budgeting/
+├── domain/           # Modelo de domínio e contratos de repositório
+├── application/      # Casos de uso (compartilhados entre REST e AI tools)
+└── infrastructure/   # Adapters HTTP, JPA e integração com Spring AI
+```
+
+A estrutura segue os princípios de **Clean Architecture** e **DDD**, garantindo que os casos de uso permaneçam agnósticos ao mecanismo de entrega (seja REST ou IA).
+
+---
+
+## 🤖 Módulos Spring AI
+
+### 🎙️ Speech-to-Text
+- Utiliza `TranscriptionModel` para transcrição de áudio
+- Configurado via `application.properties`
+
+### 🔧 Tool Calling
+- `ChatClient` registra os casos de uso como tools da IA
+- Métodos anotados com `@Tool` expõem capacidades de negócio ao modelo
+
+### 🔊 Text-to-Speech
+- `TextToSpeechModel` gera saída em MP3 a partir do texto final
+- O endpoint de IA retorna o áudio gerado diretamente ao cliente
+
+---
+
+## ⚙️ Como Executar
+
+**Pré-requisito:** configure sua chave da OpenAI
+
+```bash
+export OPENAI_API_KEY="sua_chave_aqui"
+```
+
+**Executar a aplicação:**
 
 ```bash
 ./gradlew bootRun
+```
+
+**Executar os testes:**
+
+```bash
 ./gradlew test
 ```
 
-## Notes
+> ⚠️ Testes de integração com provedores externos podem exigir credenciais ativas.
 
-- Educational final project focused on AI plus architectural discipline.
-- External provider integration tests may require active credentials.
+---
+
+## 📚 Referências — Spring AI
+
+| Recurso | Link |
+|---|---|
+| Documentação Geral | [Spring AI Reference](https://docs.spring.io/spring-ai/reference/index.html) |
+| ChatModel API | [ChatModel](https://docs.spring.io/spring-ai/reference/api/chatmodel.html) |
+| ChatClient API | [ChatClient](https://docs.spring.io/spring-ai/reference/api/chatclient.html) |
+| Tools API | [Tools](https://docs.spring.io/spring-ai/reference/api/tools.html) |
+| Transcrição de Áudio | [Transcriptions](https://docs.spring.io/spring-ai/reference/api/audio/transcriptions.html) |
+| Síntese de Voz | [Speech](https://docs.spring.io/spring-ai/reference/api/audio/speech.html) |
+
+---
+
+## 🔗 Referências de Arquitetura Compartilhada
+
+Conceitos transversais à trilha estão documentados no README raiz:
+
+- [Camadas DDD](../README.md#ddd-layered-architecture)
+- [Class vs Record no domínio](../README.md#java-class-vs-java-record-in-domain-modeling)
+- [Identificadores fortemente tipados](../README.md#strong-typed-identifiers)
+- [Repository Pattern](../README.md#repository-pattern)
+- [Casos de Uso e Clean Architecture](../README.md#use-cases-and-clean-architecture)
+- [Suporte a Docker Compose](../README.md#docker-compose-support-in-development)
+
+---
+
+## 🎓 Observações
+
+- Projeto educacional focado na disciplina arquitetural com IA
+- A IA é integrada como **mecanismo de entrega**, não como substituta das regras de negócio
+- O modelo não acessa o domínio diretamente — toda interação passa pelos casos de uso
